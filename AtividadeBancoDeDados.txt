@@ -1,0 +1,301 @@
+ 
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema RPG
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema RPG
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `RPG` DEFAULT CHARACTER SET utf8 ;
+USE `RPG` ;
+
+-- -----------------------------------------------------
+-- Table `RPG`.`classe`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `RPG`.`classe` ;
+
+CREATE TABLE IF NOT EXISTS `RPG`.`classe` (
+  `id_Classe` INT NOT NULL AUTO_INCREMENT,
+  `mago` VARCHAR(45) NOT NULL,
+  `guerreiro` VARCHAR(45) NOT NULL,
+  `arqueiro` VARCHAR(45) NOT NULL,
+  `clerico` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_Classe`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `RPG`.`personagem`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `RPG`.`personagem` ;
+
+CREATE TABLE IF NOT EXISTS `RPG`.`personagem` (
+  `id_personagem` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NOT NULL,
+  `atributos` VARCHAR(45) NOT NULL,
+  `classe` VARCHAR(45) NOT NULL,
+  `nivel` INT NOT NULL,
+  `id_classe` INT NOT NULL,
+  PRIMARY KEY (`id_personagem`),
+  INDEX `fk_personagem_Classe1_idx` (`id_classe` ASC) ,
+  CONSTRAINT `fk_personagem_Classe1`
+    FOREIGN KEY (`id_classe`)
+    REFERENCES `RPG`.`classe` (`id_Classe`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `RPG`.`atributos`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `RPG`.`atributos` ;
+
+CREATE TABLE IF NOT EXISTS `RPG`.`atributos` (
+  `id_evolucao` INT NOT NULL AUTO_INCREMENT,
+  `vitalidade` INT NOT NULL,
+  `força` INT NOT NULL,
+  `agilidade` INT NOT NULL,
+  `inteligencia` INT NOT NULL,
+  `id_personagem` INT NOT NULL,
+  PRIMARY KEY (`id_evolucao`),
+  INDEX `fk_Atributos_personagem_idx` (`id_personagem` ASC) ,
+  CONSTRAINT `fk_Atributos_personagem`
+    FOREIGN KEY (`id_personagem`)
+    REFERENCES `RPG`.`personagem` (`id_personagem`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `RPG`.`inventario`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `RPG`.`inventario` ;
+
+CREATE TABLE IF NOT EXISTS `RPG`.`inventario` (
+  `id_Inventario` INT NOT NULL AUTO_INCREMENT,
+  `capacidade` INT NOT NULL,
+  `id_personagem` INT NOT NULL,
+  PRIMARY KEY (`id_Inventario`),
+  INDEX `fk_Inventario_personagem1_idx` (`id_personagem` ASC) ,
+  CONSTRAINT `fk_Inventario_personagem1`
+    FOREIGN KEY (`id_personagem`)
+    REFERENCES `RPG`.`personagem` (`id_personagem`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `RPG`.`item_de_equipamento`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `RPG`.`item_de_equipamento` ;
+
+CREATE TABLE IF NOT EXISTS `RPG`.`item_de_equipamento` (
+  `id_item` INT NOT NULL AUTO_INCREMENT,
+  `armadura` INT NOT NULL,
+  `consumiveis` INT NOT NULL,
+  `arma` INT NOT NULL,
+  `acessorios` INT NOT NULL,
+  `id_Inventario` INT NOT NULL,
+  PRIMARY KEY (`id_item`),
+  INDEX `fk_item_de_equipamento_Inventario1_idx` (`id_Inventario` ASC) ,
+  CONSTRAINT `fk_item_de_equipamento_Inventario1`
+    FOREIGN KEY (`id_Inventario`)
+    REFERENCES `RPG`.`inventario` (`id_Inventario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `RPG`.`regiao`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `RPG`.`regiao` ;
+
+CREATE TABLE IF NOT EXISTS `RPG`.`regiao` (
+  `id_regiao` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NOT NULL,
+  `bioma` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_regiao`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `RPG`.`inimigos`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `RPG`.`inimigos` ;
+
+CREATE TABLE IF NOT EXISTS `RPG`.`inimigos` (
+  `id_inimigos` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NOT NULL,
+  `vitalidade` INT NOT NULL,
+  `mp` INT NOT NULL,
+  `nivel` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_inimigos`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `RPG`.`regiao_inimigos`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `RPG`.`regiao_inimigos` ;
+
+CREATE TABLE IF NOT EXISTS `RPG`.`regiao_inimigos` (
+  `id_regiao` INT NOT NULL,
+  `id_inimigos` INT NOT NULL,
+  PRIMARY KEY (`id_regiao`, `id_inimigos`),
+  INDEX `fk_regiao_has_inimigos_inimigos1_idx` (`id_inimigos` ASC) ,
+  INDEX `fk_regiao_has_inimigos_regiao1_idx` (`id_regiao` ASC) ,
+  CONSTRAINT `fk_regiao_has_inimigos_regiao1`
+    FOREIGN KEY (`id_regiao`)
+    REFERENCES `RPG`.`regiao` (`id_regiao`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_regiao_has_inimigos_inimigos1`
+    FOREIGN KEY (`id_inimigos`)
+    REFERENCES `RPG`.`inimigos` (`id_inimigos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `RPG`.`usuario`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `RPG`.`usuario` ;
+
+CREATE TABLE IF NOT EXISTS `RPG`.`usuario` (
+  `id_jogador` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(45) NOT NULL,
+  `nick_name` VARCHAR(45) NOT NULL,
+  `id_personagem` INT NOT NULL,
+  PRIMARY KEY (`id_jogador`),
+  INDEX `fk_usuario_personagem1_idx` (`id_personagem` ASC) ,
+  CONSTRAINT `fk_usuario_personagem1`
+    FOREIGN KEY (`id_personagem`)
+    REFERENCES `RPG`.`personagem` (`id_personagem`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+INSERT INTO `RPG`.`classe` (`mago`, `guerreiro`, `arqueiro`, `clerico`) VALUES
+('Mago Arcano', 'Guerreiro Bárbaro', 'Arqueiro Elven', 'Clérigo da Luz'),
+('Mago Sombrio', 'Guerreiro Paladino', 'Arqueiro Humano', 'Clérigo da Sombra'),
+('Mago dos Ventos', 'Guerreiro Gladiador', 'Arqueiro Orc', 'Clérigo da Terra'),
+('Mago do Fogo', 'Guerreiro Cavaleiro', 'Arqueiro Elfo', 'Clérigo da Água'),
+('Mago do Gelo', 'Guerreiro Samurai', 'Arqueiro Anão', 'Clérigo do Sol'),
+('Mago Celestial', 'Guerreiro Lendário', 'Arqueiro Ranger', 'Clérigo das Estrelas'),
+('Mago dos Dragões', 'Guerreiro Berserker', 'Arqueiro Caçador', 'Clérigo do Vento'),
+('Mago das Sombras', 'Guerreiro Mercenário', 'Arqueiro Selvagem', 'Clérigo das Trevas'),
+('Mago da Tempestade', 'Guerreiro Guardião', 'Arqueiro da Luz', 'Clérigo do Fogo'),
+('Mago dos Rios', 'Guerreiro Conquistador', 'Arqueiro Noturno', 'Clérigo da Floresta');
+
+INSERT INTO `RPG`.`personagem` (`nome`, `atributos`, `classe`, `nivel`, `id_classe`) VALUES
+('Artemis', 'Vitalidade: 10, Força: 8, Agilidade: 12, Inteligência: 7', 'Arqueiro Elven', 5, 1),
+('Brom', 'Vitalidade: 15, Força: 12, Agilidade: 6, Inteligência: 5', 'Guerreiro Bárbaro', 8, 1),
+('Eldrin', 'Vitalidade: 8, Força: 7, Agilidade: 10, Inteligência: 12', 'Mago Arcano', 7, 1),
+('Lyria', 'Vitalidade: 9, Força: 6, Agilidade: 11, Inteligência: 10', 'Arqueiro Humano', 6, 2),
+('Theron', 'Vitalidade: 12, Força: 10, Agilidade: 8, Inteligência: 9', 'Guerreiro Paladino', 9, 2),
+('Vera', 'Vitalidade: 14, Força: 9, Agilidade: 7, Inteligência: 11', 'Mago dos Ventos', 6, 3),
+('Kara', 'Vitalidade: 13, Força: 11, Agilidade: 9, Inteligência: 8', 'Clérigo da Luz', 7, 4),
+('Rael', 'Vitalidade: 11, Força: 10, Agilidade: 8, Inteligência: 10', 'Guerreiro Cavaleiro', 5, 5),
+('Nyssa', 'Vitalidade: 10, Força: 6, Agilidade: 12, Inteligência: 11', 'Arqueiro Anão', 6, 6),
+('Zephyr', 'Vitalidade: 8, Força: 7, Agilidade: 9, Inteligência: 12', 'Mago do Gelo', 8, 7);
+
+INSERT INTO `RPG`.`atributos` (`vitalidade`, `força`, `agilidade`, `inteligencia`, `id_personagem`) VALUES
+(10, 8, 12, 7, 1),
+(15, 12, 6, 5, 2),
+(8, 7, 10, 12, 3),
+(9, 6, 11, 10, 4),
+(12, 10, 8, 9, 5),
+(14, 9, 7, 11, 6),
+(13, 11, 9, 8, 7),
+(11, 10, 8, 10, 8),
+(10, 6, 12, 11, 9),
+(8, 7, 9, 12, 10);
+
+INSERT INTO `RPG`.`inventario` (`capacidade`, `id_personagem`) VALUES
+(50, 1),
+(30, 2),
+(40, 3),
+(25, 4),
+(60, 5),
+(45, 6),
+(35, 7),
+(55, 8),
+(70, 9),
+(20, 10);
+
+INSERT INTO `RPG`.`item_de_equipamento` (`armadura`, `consumiveis`, `arma`, `acessorios`, `id_Inventario`) VALUES
+(10, 5, 3, 2, 1),
+(12, 7, 5, 4, 2),
+(8, 6, 4, 3, 3),
+(14, 8, 6, 5, 4),
+(11, 4, 3, 3, 5),
+(13, 9, 7, 4, 6),
+(15, 10, 5, 6, 7),
+(9, 6, 4, 2, 8),
+(10, 5, 6, 3, 9),
+(12, 8, 5, 4, 10);
+
+INSERT INTO `RPG`.`regiao` (`nome`, `bioma`) VALUES
+('Floresta Encantada', 'Floresta'),
+('Deserto Ardente', 'Deserto'),
+('Montanhas Geladas', 'Montanha'),
+('Pântano Sombrio', 'Pântano'),
+('Planícies Verdejantes', 'Plano'),
+('Caverna Profunda', 'Caverna'),
+('Ruínas Antigas', 'Ruínas'),
+('Bosque Místico', 'Floresta'),
+('Vulcão Ativo', 'Vulcão'),
+('Praia Tropical', 'Praia');
+
+INSERT INTO `RPG`.`inimigos` (`nome`, `vitalidade`, `mp`, `nivel`) VALUES
+('Goblin', 30, 10, '1'),
+('Troll', 100, 20, '5'),
+('Dragão', 300, 50, '10'),
+('Esqueleto', 50, 15, '2'),
+('Lobo Selvagem', 40, 5, '3'),
+('Múmia', 70, 20, '4'),
+('Grifo', 80, 30, '6'),
+('Orc', 60, 25, '5'),
+('Beholder', 150, 40, '8'),
+('Hydra', 200, 35, '7');
+
+INSERT INTO `RPG`.`regiao_inimigos` (`id_regiao`, `id_inimigos`) VALUES
+(1, 1), -- Floresta Encantada e Goblin
+(1, 4), -- Floresta Encantada e Esqueleto
+(2, 2), -- Deserto Ardente e Troll
+(2, 6), -- Deserto Ardente e Múmia
+(3, 3), -- Montanhas Geladas e Dragão
+(3, 7), -- Montanhas Geladas e Grifo
+(4, 5), -- Pântano Sombrio e Lobo Selvagem
+(4, 8), -- Pântano Sombrio e Orc
+(5, 9), -- Planícies Verdejantes e Beholder
+(5, 10); -- Planícies Verdejantes e Hydra
+
+INSERT INTO `RPG`.`usuario` (`nome`, `email`, `nick_name`, `id_personagem`) VALUES
+('Alice', 'alice@example.com', 'Alyssia', 1),
+('Bob', 'bob@example.com', 'BarbarianBob', 2),
+('Charlie', 'charlie@example.com', 'WizardCharlie', 3),
+('David', 'david@example.com', 'HunterDavid', 4),
+('Eva', 'eva@example.com', 'PaladinEva', 5),
+('Frank', 'frank@example.com', 'VeraWind', 6),
+('Grace', 'grace@example.com', 'ClericGrace', 7),
+('Hannah', 'hannah@example.com', 'KnightHannah', 8);
+
+select * from regiao where id_inimigos = 3;
